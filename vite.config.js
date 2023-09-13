@@ -14,12 +14,21 @@ const config = {
 	// for linked package in dev
 	build: {
 		commonjsOptions: {
-			include: [/studentvue\.js/g, /node_modules/g]
+			include: [/studentvue\.js/g, /node_modules/g],
+			ignoreTryCatch: id => id !== 'stream',
 		}
 	},
 	optimizeDeps: {
 		include: ['studentvue.js'],
-	  },
+	},
+	resolve: {
+		alias: [
+		  {
+			find: 'stream',
+			replacement: `stream-browserify`,
+		  },
+		],
+	},
 }
 
 export default config

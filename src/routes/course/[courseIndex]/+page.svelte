@@ -2,12 +2,11 @@
 	import { onMount } from 'svelte'
 	import { session } from '$lib/stores/session.js'
 	import { Chart, registerables } from 'chart.js';
-	import PeriodSelect from '$lib/components/PeriodSelect.svelte'
+	import { page } from '$app/stores';
 	import FakeAssignment from '$lib/components/FakeAssignment.svelte'
 	import EditAssignment from '$lib/components/EditAssignment.svelte'
 
-	export let data
-	$: course = $session.selected.Courses[0].Course[data.courseIndex]
+	$: course = $session.selected.Courses[0].Course[$page.params.courseIndex]
 
 	let fakeAssignment
 	let editAssignment

@@ -1,8 +1,10 @@
 import { getColor, fourToPercent, percentToLetter } from './utils.js'
 import { format, eachDayOfInterval, isWeekend } from "date-fns";
 import { getSchoolIdFromName } from '$lib/data/schools.js';
+import { browser } from '$app/environment';
 
 export async function parseData(session, oldAssignments) {
+	console.log(session)
 	// debugger;
 	session.doneParsing = false;
 	session.student.school = getSchoolIdFromName(session?.student?.CurrentSchool?.[0] ||
@@ -208,7 +210,12 @@ export async function parseData(session, oldAssignments) {
 		period.assignments = assignments
 		period.week = getWeek(period.assignments)
 	}
+	if (browser) {
+		console.log(session, JSON.stringify(session));
+		window.sessionStorage.setItem('session', JSON.stringify(session))
+	}
 	session.doneParsing = true;
+	
 }
 
 function getDaysLeft(endDate, calendar) {

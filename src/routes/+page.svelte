@@ -5,6 +5,8 @@
 	import { settings } from '$lib/stores/settings.js'
 	import AssignmentHomepage from "$lib/components/AssignmentHomepage.svelte"
 
+	export const ssr = false;
+
 	let date = new Date()
 	let greeting = date.getHours() < 12 ? 'morning' : date.getHours() < 18 ? 'afternoon' : 'evening'
 	let shareSchedule;

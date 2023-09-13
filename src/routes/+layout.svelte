@@ -11,16 +11,47 @@
 	import { oldAssignments } from '$lib/stores/oldAssignments.js'
 	import Spinner from '$lib/components/Spinner.svelte'
 	import { browser } from '$app/environment'
+	import * as studentVueClient from "$lib/js/studentvue-client"
+	import {Buffer} from 'buffer';
+	import EventEmitter from 'events';
+	import process from 'process';
 	export let data
+
+
+	
+
+	// sax.js needs these
+	window.Buffer = Buffer;
+	window.EventEmitter = EventEmitter;
+	window.process = process;
+	
 
 	let interval;
 	let spinning = false;
 
+	debugger;
+
+	function isEmpty(obj) {
+		for (const prop in obj) {
+			if (Object.hasOwn(obj, prop)) {
+			return false;
+			}
+		}
+
+		return true;
+	}
+
+	if ((!($settings?.user) || isEmpty($session)) && new URL(location.href).pathname !== "/login") {
+			goto("/login")
+	}
+	
+
 	onMount(async () => {
+		
 		if ($settings.theme === 'dark') {
 			$settings.theme = 'night'
 		}
-		if (data.user) {
+		if ($settings.user) {
 			//console.log('load')
 			await load()
 			if (!interval) {
@@ -76,23 +107,42 @@
 	}
 
 	async function load() {
-		const res = await fetch('/data')
-		if (!res.ok) {
-			//console.log('fetch data not ok: ', res.status)
-			goto('/login')
-			return
+		try {
+			const credsOk = await studentVueClient.testCredentials({
+				username, password
+			});
+			if (!credsOk) {
+				throw new Error("Invalid Credentials");
+			}
+		} catch (e) {
+			goto('/login');
+			return;
 		}
-		const json = await res.json()
-		let { student, childList, periods, currentPeriod } = json
-		$session = {
-			student,
-			periods,
-			childList,
-			currentPeriod,
-			selectedPeriod: currentPeriod,
-			selected: periods[currentPeriod],
-			gradebook: periods[currentPeriod]
+		try {
+			const resp = await studentVueClient.data({
+				username: $session.data.username,
+				password: $session.data.password,
+			});
+			let { student, periods, childList, currentPeriod } = resp;
+			$session = {
+				user: {
+					username, password,
+				},
+				student,
+				periods,
+				childList,
+				currentPeriod,
+				selectedPeriod: currentPeriod,
+				selected: periods[currentPeriod],
+				gradebook: periods[currentPeriod]
+			}
+	
+			
+		} catch {
+			return;
 		}
+
+
 		await parseData($session, $oldAssignments);
 		await checkNotificationPermissions();
 		
@@ -116,8 +166,8 @@
 	<link rel="stylesheet" href={`/themes/${$settings.theme}.css`} />
 </svelte:head>
 
-{#if data.user}
-	{#if $session.doneParsing}
+{#if $settings.user || !(new URL(location.href).pathname !== "/login")}
+	{#if $session.doneParsing || true}
 		<nav
 			in:fade={{ duration: 200, delay: 200 }}
 			out:fade={{ duration: 200 }}

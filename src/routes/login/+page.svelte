@@ -2,8 +2,10 @@
 	import { goto } from '$app/navigation'
 	import { parseData } from '$lib/js/parseData.js'
 	import { session } from '$lib/stores/session.js'
+	import { settings } from '$lib/stores/settings.js'
 	import { oldAssignments } from '$lib/stores/oldAssignments.js'
 	import Spinner from '$lib/components/Spinner.svelte'
+	import { data, testCredentials } from '$lib/js/studentvue-client'
 
 	let username
 	let password
@@ -19,23 +21,34 @@
 			error = 'Please enter a password.'
 			return
 		}
-		loading = true
-		const res = await fetch('/login', {
-			method: 'POST',
-			body: JSON.stringify({
-				username,
-				password,
-			}),
-		})
-		if (res.ok) {
-			const json = await res.json()
-			let { student, periods, currentPeriod } = json
+		loading = true;
+		debugger;
+		try {
+			const credsOk = await testCredentials({
+				username, password
+			});
+			if (!credsOk) {
+				throw new Error("Invalid Credentials");
+			}
+		} catch (e) {
+			console.log(e);
+			error = 'Invalid login credentials.'
+			loading = false;
+			$settings.user = undefined;
+			return;
+		}
+		$settings.user = {
+				username, password,
+		}
+		try {
+			const resp = await data({
+				username, password
+			});
+			let { student, periods, childList, currentPeriod } = resp;
 			$session = {
-				user: {
-					username, password,
-				},
 				student,
 				periods,
+				childList,
 				currentPeriod,
 				selectedPeriod: currentPeriod,
 				selected: periods[currentPeriod],
@@ -43,9 +56,11 @@
 			}
 			parseData($session, $oldAssignments)
 			goto('/')
-		} else {
-			error = 'Invalid login credentials.'
-			loading = false
+		} catch (e) {
+			console.log(e);
+			error = 'Error in Fetching Data';
+			loading = false;
+			return;
 		}
 	}
 </script>

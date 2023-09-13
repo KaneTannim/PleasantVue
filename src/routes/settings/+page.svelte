@@ -5,10 +5,8 @@
 	import { parseData } from '$lib/js/parseData.js'
 
 	async function logout() {
-		$session.user = null
-		await fetch('/logout', {
-			method: 'POST'
-		})
+		$session = {}
+		$settings.user = undefined
 		goto('/login')
 	}
 
