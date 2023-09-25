@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="description" content="an educational tool for checking grades" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+		<meta name="application-name" content="PleasantVue" />
+		<meta name="apple-mobile-web-app-title" content="PleasantVue" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="theme-color" content="#13161b" />
+
+		<link rel="icon" href="/favicon.png" />
+		<link rel="manifest" href="/manifest.json" />
+		<link rel="apple-touch-icon" href="/apple-icon-180.png" />
+
+		<link rel="stylesheet" href="/font/font.css" />
+		<link rel="stylesheet" href="/bootstrap-icons/bootstrap-icons.css" />
+		<script>
+			if (location.href.endsWith("/login?")) {
+				alert("update your browser/phone to the latest version!");
+			}
+		</script>
+		<script defer data-domain="pleasantvue.com" src="https://stat.thiccaxe.net/js/script.js"></script>
+
+
+		%sveltekit.head%
+	</head>
+	<body>
+		<div id="svelte">%sveltekit.body%</div>
+		<!-- 100% privacy-first analytics -->
+		<script async defer src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
+		<noscript><img src="https://queue.simpleanalyticscdn.com/noscript.gif" alt="" referrerpolicy="no-referrer-when-downgrade" /></noscript>
+	</body>
+</html>
